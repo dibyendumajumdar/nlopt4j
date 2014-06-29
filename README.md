@@ -73,7 +73,12 @@ The NLopt library files must be under c:/nlopt/lib.
 To build follow these steps from a VS 2013 command shell:
 ```
 cmake -G "Visual Studio 12"
-make
+```
+Above creates VS solution files which can be opened in the IDE. Build the
+solution inside the IDE.
+
+To build and test the Java bits, run following from the command shell.
+```
 mvn test
 ```
 
