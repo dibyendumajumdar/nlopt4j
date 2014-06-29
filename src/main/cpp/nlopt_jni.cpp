@@ -54,7 +54,7 @@ extern "C" {
     {
         NLopt_data *data = (NLopt_data *)func_data;
         // Get JNI environment
-        JNIEnv *jni = nullptr;
+        JNIEnv *jni = NULL;
         if (jvm->GetEnv(reinterpret_cast<void **>(&jni), JNI_VERSION_1_6) != JNI_OK) {
             fprintf(stderr, "Error: Unable to obtain JNI environment\n");
             nlopt_force_stop(data->handle);
@@ -101,7 +101,7 @@ extern "C" {
                     return 0.0; // ignored
                 }
                 // Copy data
-                std::copy_n(xcopy, gsize, gradient);
+                std::copy(xcopy, xcopy+gsize, gradient);
                 // Release the managed copy
                 jni->ReleaseDoubleArrayElements(gradientarray, xcopy, 0);
                 if (jni->ExceptionCheck()) {
@@ -155,15 +155,15 @@ extern "C" {
             return 0;
         }
         nlopt_opt h = nlopt_create((nlopt_algorithm)algo, dimensions);
-        if (h == nullptr) {
+        if (h == NULL) {
             jni->ThrowNew(out_of_memory_class, "NLopt failed to initialize: not enough memory");
             return 0;
         }
         NLopt_data *data = (NLopt_data *) malloc(sizeof(NLopt_data));
         data->handle = h;
         data->func = 0;
-        data->first_constraint = nullptr;
-        data->last_constraint = nullptr;
+        data->first_constraint = NULL;
+        data->last_constraint = NULL;
 
         // As we have no way to return a pointer to Java
         // We have to convert the pointer to a long (64 bit) value
@@ -381,7 +381,7 @@ extern "C" {
 
     static void add_constraint(NLopt_data *data, Constraint_function *constraint)
     {
-        constraint->next = nullptr;
+        constraint->next = NULL;
         if (data->last_constraint)
             data->last_constraint->next = constraint;
         else
@@ -399,13 +399,13 @@ extern "C" {
         }
         NLopt_data *data = (NLopt_data *)handle;
         Constraint_function *constraint = (Constraint_function *)malloc(sizeof(Constraint_function));
-        if (constraint == nullptr) {
+        if (constraint == NULL) {
             jni->ThrowNew(out_of_memory_class, "Cannot allocate a constraint function");
             return;
         }
         constraint->handle = data->handle;
-        constraint->next = nullptr;
-        constraint->unused = nullptr;
+        constraint->next = NULL;
+        constraint->unused = NULL;
         constraint->func = jni->NewGlobalRef(func);
         add_constraint(data, constraint);
         nlopt_add_inequality_constraint(data->handle, nlopt_minfunc, constraint, tol);
@@ -420,13 +420,13 @@ extern "C" {
         }
         NLopt_data *data = (NLopt_data *)handle;
         Constraint_function *constraint = (Constraint_function *)malloc(sizeof(Constraint_function));
-        if (constraint == nullptr) {
+        if (constraint == NULL) {
             jni->ThrowNew(out_of_memory_class, "Cannot allocate a constraint function");
             return;
         }
         constraint->handle = data->handle;
-        constraint->next = nullptr;
-        constraint->unused = nullptr;
+        constraint->next = NULL;
+        constraint->unused = NULL;
         constraint->func = jni->NewGlobalRef(func);
         add_constraint(data, constraint);
         nlopt_add_equality_constraint(data->handle, nlopt_minfunc, constraint, tol);
