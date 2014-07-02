@@ -5,7 +5,7 @@ find_path(NLOPT_INCLUDE_DIR nlopt.h
 )
 
 find_library(NLOPT_LIBRARY
-  NAMES libnlopt libnlopt-0
+  NAMES libnlopt libnlopt-0 nlopt
   PATHS
   c:/nlopt/lib
   ~/nlopt/lib
