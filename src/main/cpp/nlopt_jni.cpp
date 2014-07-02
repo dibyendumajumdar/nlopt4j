@@ -1,3 +1,4 @@
+
 // nlopt4j
 // Provides a JNI wrapper for NLopt (http://ab-initio.mit.edu/wiki/index.php/NLopt)
 // LICENSE: See LICENSE file
@@ -22,6 +23,7 @@ extern "C" {
     static jmethodID nlopt_func_execute_method;
     static jclass illegal_argument_exception_class;
     static jclass out_of_memory_class;
+    static jclass illegal_state_exception_class;
 
     // Must have same structure as NLopt_data
     struct Constraint_function {
@@ -68,14 +70,12 @@ extern "C" {
             // Create Java arrays
             xarray = jni->NewDoubleArray(n);
             if (!xarray || jni->ExceptionCheck()) {
-                fprintf(stderr, "Error: failed to allocate double array of size %u\n", n);
                 nlopt_force_stop(data->handle);
                 return 0.0; // ignored
             }
             unsigned gsize = gradient ? n : 0;
             gradientarray = jni->NewDoubleArray(gsize);
             if (!gradientarray || jni->ExceptionCheck()) {
-                fprintf(stderr, "Error: failed to allocate double array of size %u\n", gsize);
                 nlopt_force_stop(data->handle);
                 return 0.0; // ignored
             }
@@ -87,7 +87,6 @@ extern "C" {
             // Call Java function
             jdouble result = jni->CallDoubleMethod(data->func, nlopt_func_execute_method, xarray, gradientarray);
             if (jni->ExceptionCheck()) {
-                fprintf(stderr, "Error: Java function failed with exception\n");
                 nlopt_force_stop(data->handle);
                 return 0.0; // ignored
             }
@@ -96,7 +95,6 @@ extern "C" {
                 jboolean is_copy = false;
                 double *xcopy = jni->GetDoubleArrayElements(gradientarray, &is_copy);
                 if (!xcopy || jni->ExceptionCheck()) {
-                    fprintf(stderr, "Error: failed to make a copy of the gradient array\n");
                     nlopt_force_stop(data->handle);
                     return 0.0; // ignored
                 }
@@ -104,15 +102,10 @@ extern "C" {
                 std::copy_n(xcopy, gsize, gradient);
                 // Release the managed copy
                 jni->ReleaseDoubleArrayElements(gradientarray, xcopy, 0);
-                if (jni->ExceptionCheck()) {
-                    fprintf(stderr, "Error: failed to release copy of gradient array\n");
-                    nlopt_force_stop(data->handle);
-                    return 0.0; // ignored
-                }
             }
             return result;
         }
-        fprintf(stderr, "Error: No function set\n");
+        jni->ThrowNew(illegal_argument_exception_class, "No function set");
         nlopt_force_stop(data->handle);
         return 0.0; // ignored
     }
@@ -135,6 +128,11 @@ extern "C" {
         illegal_argument_exception_class = (jclass)(jni->NewGlobalRef(localclass));
         jni->DeleteLocalRef(localclass);
 
+        localclass = jni->FindClass("java/lang/IllegalStateException");
+        if (jni->ExceptionCheck()) return;
+        illegal_state_exception_class = (jclass)(jni->NewGlobalRef(localclass));
+        jni->DeleteLocalRef(localclass);
+
         localclass = jni->FindClass("java/lang/OutOfMemoryError");
         if (jni->ExceptionCheck()) return;
         out_of_memory_class = (jclass)(jni->NewGlobalRef(localclass));
@@ -147,7 +145,7 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_org_nlopt4j_optimizer_NLopt_create(JNIEnv *jni, jclass self, jint algo, jint dimensions)
     {
         if (algo < 0 || algo >= NLOPT_NUM_ALGORITHMS) {
-            jni->ThrowNew(illegal_argument_exception_class, "Unknown nlopt.algorithm");
+            jni->ThrowNew(illegal_argument_exception_class, "Unknown NLopt.algorithm");
             return 0;
         }
         if (dimensions <= 0) {
@@ -333,13 +331,7 @@ extern "C" {
         }
         NLopt_data *data = (NLopt_data *)handle;
         jsize len = jni->GetArrayLength(values);
-        if (jni->ExceptionCheck()) {
-            return -10;
-        }
         jsize resultlen = jni->GetArrayLength(result);
-        if (jni->ExceptionCheck()) {
-            return -10;
-        }
         if (len != nlopt_get_dimension(data->handle)) {
             jni->ThrowNew(illegal_argument_exception_class, "Array length of values does not match dimensions");
             return -10;
