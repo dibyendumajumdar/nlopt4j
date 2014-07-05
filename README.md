@@ -125,4 +125,45 @@ This destroys the underlying native object. I recommend calling this in the
 finally block. Note that `release()` will be invoked by the finalizer as well,
 calling `release()` multiple times has no effect.
 
+Objective function
+------------------
+The objective function must implement the following interface.
+```Java
+class NLopt {
+    interface NLopt_func {
+        double execute(double[] x, double[] gradient);
+    }
+}
+```
+The `x` array contains the values of the variables - the objective
+function must return the evaluated result using these parameters.
+If the `gradient` array length is equal to the `x` array length, then
+the objective function must compute the first order partial derivative
+for each `x` and store in the `gradient` array.
+
+If the objective function throws an exception the evaluations will 
+be terminated.
+
+Methods
+-------
+
+Set upper bounds.
+```Java
+void setUpperBounds(double[] ub)
+```
+
+Set lower bounds.
+```Java
+void setLowerBounds(double[] lb)
+```
+
+Set maximum number of evaluations.
+```Java
+void setMaxEval(int n)
+```
+
+
+
+
+
 
