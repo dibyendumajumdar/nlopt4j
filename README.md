@@ -144,16 +144,36 @@ for each `x` and store in the `gradient` array.
 If the objective function throws an exception the evaluations will 
 be terminated.
 
+Example:
+```Java
+NLopt.NLopt_func func = new NLopt.NLopt_func() {
+    @Override
+    public double execute(double[] x, double[] gradient) {
+        if (gradient.length == x.length) {
+            gradient[0] = 0.0;
+            gradient[1] = 0.5 / Math.sqrt(x[1]);
+        }
+        return Math.sqrt(x[1]);
+    }
+};
+```
+
+Running optimizer
+-----------------
+The method for running the optimizer has following signature:
+```Java
+NLoptResult optimize(double[] x)
+```
+
+NLoptResult is an object that provides access to the final value 
+of the objective function, and the reason for termination.
+
 Methods
 -------
 
-Set upper bounds.
+Set bounds.
 ```Java
 void setUpperBounds(double[] ub)
-```
-
-Set lower bounds.
-```Java
 void setLowerBounds(double[] lb)
 ```
 
@@ -162,8 +182,48 @@ Set maximum number of evaluations.
 void setMaxEval(int n)
 ```
 
+Set stop value.
+```Java
+void setStopValue(double v)
+```
 
+Set maximum time in seconds.
+```Java
+void setMaxTime(double t)
+```
 
+Set objective functions.
+```Java
+void setMinObjective(NLopt_func func) 
+void setMaxObjective(NLopt_func func) 
+```
 
+Add equality / inequality constraints.
+```Java
+void addInequalityConstraint(NLopt_func func, double tol) 
+void addEqualityConstraint(NLopt_func func, double tol)
+```
+
+Set relative tolerance.
+```Java
+void setRelativeToleranceOnX(double tol)
+```
+
+Get the list of algorithms.
+```Java
+static String[] getGlobalAlgorithms()
+static String[] getLocalAlgorithms() 
+```
+
+Convert from algorithm name to integer code.
+```Java
+static int getAlgorithmCode(String name)
+```
+
+Get the text for a return code.
+```Java
+static String getSuccessDesc(int code)
+static String getErrorDesc(int code)
+```
 
 
