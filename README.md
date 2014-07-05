@@ -82,6 +82,8 @@ To build and test the Java bits, run following from the command shell.
 mvn test
 ```
 
+Note that on Windows the required DLLs must be on the PATH.
+
 Mac OS X
 --------
 Requires following:
@@ -100,4 +102,27 @@ cmake -G "Unix Makefiles"
 make
 mvn test
 ```
+
+Reference
+=========
+
+The main Java class is `org.nlopt4j.optimizer.NLopt`.
+
+An instance of `NLopt` encapsulates the `NLopt` handle of the native library.
+
+The NLopt constructor is defined as:
+```Java
+NLopt(int algorithm, int dim)
+```
+The `algorithm` is an integer constants such as `NLopt.NLOPT_GN_DIRECT`.
+The `dim` argument specifies the number of variables in the problem.
+
+The NLopt instance can be destroyed by calling:
+```Java
+void release()
+```
+This destroys the underlying native object. I recommend calling this in the
+finally block. Note that `release()` will be invoked by the finalizer as well,
+calling `release()` multiple times has no effect.
+
 
