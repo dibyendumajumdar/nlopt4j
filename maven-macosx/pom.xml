@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>org.nlopt4j</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.nlopt4j</groupId>
+  <artifactId>nlopt4j</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jnilib</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.nlopt4j</groupId>
+      <artifactId>optimizer</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <testSourceDirectory>../src/test/java</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <workingDirectory>${project.build.directory}</workingDirectory>
+          <!--  trigger javah -->
+          <javahOS>darwin</javahOS>
+          <javahOutputDirectory>../include</javahOutputDirectory>
+          <javahOutputFileName>nlopt_jni.h</javahOutputFileName>
+          <javahClassNames>
+            <javahClassName>org.nlopt4j.optimizer.NLopt</javahClassName>
+          </javahClassNames>
+          <!--  compiler configuration -->
+          <compilerExecutable>gcc</compilerExecutable>
+          <linkerExecutable>gcc</linkerExecutable>
+          <sources>
+            <source>
+              <directory>../src/main/cpp</directory>
+              <fileNames>
+                <fileName>nlopt_jni.cpp</fileName>
+              </fileNames>
+            </source>
+          </sources>
+          <compilerStartOptions>
+            <compilerStartOption>${compiler.debug.options}</compilerStartOption>
+            <compilerStartOption>-I/System/Library/Frameworks/JavaVM.framework/Headers</compilerStartOption>
+            <compilerStartOption>-I${nlopt.include}</compilerStartOption>
+          </compilerStartOptions>
+          <!--  linker configuration -->
+          <classifier>${classifier}</classifier>
+          <linkerStartOptions>
+            <linkerStartOption>${linker.debug.options}</linkerStartOption>
+            <linkerStartOption>-dynamiclib -framework JavaVM -l${nlopt.library}</linkerStartOption>
+          </linkerStartOptions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkMode>once</forkMode>
+          <!--
+          <environmentVariables>
+            <path>${project.build.directory};${java.library.path}</path>
+          </environmentVariables>
+          -->
+          <!--
+            If you have single dll, then set
+            working directory to where the dll is placed will work
+          -->
+          <!--workingDirectory>${project.build.directory}</workingDirectory-->
+          <argLine>-Djava.library.path="${project.build.directory};${java.library.path}"</argLine>
+          <!-- currently not working
+          <systemProperties>
+            <property>
+              <name>java.library.path</name>
+              <value>${project.build.directory};${java.library.path}</value>
+            </property>
+          </systemProperties>
+          -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <!-- to build debug artifact, run maven install -Ddebug -->
+    <profile>
+      <id>debug</id>
+      <activation>
+        <property>
+          <name>debug</name>
+        </property>
+      </activation>
+      <properties>
+        <compiler.debug.options>-O2 -g3 -Wall -Wno-sign-compare</compiler.debug.options>
+        <linker.debug.options></linker.debug.options>
+        <classifier>debug</classifier>
+      </properties>
+    </profile>
+    <profile>
+      <id>release</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <compiler.debug.options>-O2 -g3 -Wall -Wno-sign-compare</compiler.debug.options>
+        <linker.debug.options></linker.debug.options>
+        <classifier/>
+      </properties>
+    </profile>
+  </profiles>
+</project>
