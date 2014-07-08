@@ -252,3 +252,14 @@ extern "C" {
 }
 #endif
 #endif
+/* Header for class org_nlopt4j_optimizer_NLopt_Param */
+
+#ifndef _Included_org_nlopt4j_optimizer_NLopt_Param
+#define _Included_org_nlopt4j_optimizer_NLopt_Param
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef __cplusplus
+}
+#endif
+#endif

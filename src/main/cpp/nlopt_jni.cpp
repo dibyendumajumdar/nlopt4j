@@ -148,7 +148,7 @@ extern "C" {
             jni->ThrowNew(illegal_argument_exception_class, "Unknown NLopt.algorithm");
             return 0;
         }
-        if (dimensions <= 0) {
+        if (dimensions < 0) {
             jni->ThrowNew(illegal_argument_exception_class, "Dimensions cannot be <= 0");
             return 0;
         }
@@ -167,7 +167,7 @@ extern "C" {
         // We have to convert the pointer to a long (64 bit) value
         jlong ret = (jlong)data;
 
-        fprintf(stderr, "Created nlopt_opt pointer %p\n", data);
+        //fprintf(stderr, "Created nlopt_opt pointer %p\n", data);
         assert(((void *)ret) == ((void *)data));
 
         return ret;
@@ -180,8 +180,7 @@ extern "C" {
             return;
         }
         NLopt_data *data = (NLopt_data *)handle;
-        fprintf(stderr, "Destroying nlopt_opt object at %p\n", data);
-
+        //fprintf(stderr, "Destroying nlopt_opt object at %p\n", data);
         nlopt_opt h = data->handle;
         if (data->func) {
             jni->DeleteGlobalRef(data->func);

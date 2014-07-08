@@ -1,40 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.nlopt4j</groupId>
-    <artifactId>optimizer</artifactId>
-    <version>1.0-SNAPSHOT</version>
-        <build>
- 
-                <defaultGoal>package</defaultGoal>
- 
-                <plugins>
- 
-                        <plugin>
- 
-                                <artifactId>maven-compiler-plugin</artifactId>
- 
-                                <configuration>
- 
-                                        <source>1.6</source>
- 
-                                        <target>1.6</target>
- 
-                                </configuration>
- 
-                        </plugin>
- 
-				</plugins>
-			</build>
-		
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-        </dependency>
-    </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.nlopt4j</groupId>
+  <artifactId>parent</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>maven-java</module>
+  </modules>
+  <build>
+    <defaultGoal>package</defaultGoal>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+    </dependency>
+  </dependencies>
+  <profiles>
+    <profile>
+      <id>add-windows-x86-module</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>x86</arch>
+        </os>
+      </activation>
+	  <properties>
+	    <env.factory>org.codehaus.mojo.natives.msvc.MSVC2013x86EnvFactory</env.factory>
+        <nlopt.include>c:\nlopt\include</nlopt.include>
+        <nlopt.library>c:\nlopt\lib\libnlopt-0.lib</nlopt.library>
+      </properties>
+      <modules>
+        <module>maven-win32</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>add-windows-x64-module</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+	  <properties>
+	    <env.factory>org.codehaus.mojo.natives.msvc.MSVC2013x86AMD64EnvFactory</env.factory>
+        <nlopt.include>c:\nlopt\include</nlopt.include>
+        <nlopt.library>c:\nlopt\lib\libnlopt-0.lib</nlopt.library>
+      </properties>
+      <modules>
+        <module>maven-win32</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>linux</id>
+      <activation>
+        <property>
+          <name>platform</name>
+          <value>linux</value>
+        </property>
+      </activation>
+      <modules>
+        <module>maven-linux</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>macosx</id>
+      <activation>
+        <property>
+          <name>platform</name>
+          <value>macosx</value>
+        </property>
+      </activation>
+	  <properties>
+        <nlopt.include>~/nlopt/include</nlopt.include>
+        <nlopt.library>~/nlopt/lib</nlopt.library>
+      </properties>
+      <modules>
+        <module>maven-macosx</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
