@@ -7,7 +7,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.nlopt4j</groupId>
-  <artifactId>nlopt4j</artifactId>
+  <artifactId>libnlopt4j</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jnilib</packaging>
   <dependencies>
@@ -52,13 +52,13 @@
           <compilerStartOptions>
             <compilerStartOption>${compiler.debug.options}</compilerStartOption>
             <compilerStartOption>-I/System/Library/Frameworks/JavaVM.framework/Headers</compilerStartOption>
-            <compilerStartOption>-I${nlopt.include}</compilerStartOption>
+            <compilerStartOption>-I ${nlopt.include}</compilerStartOption>
           </compilerStartOptions>
           <!--  linker configuration -->
           <classifier>${classifier}</classifier>
           <linkerStartOptions>
             <linkerStartOption>${linker.debug.options}</linkerStartOption>
-            <linkerStartOption>-dynamiclib -framework JavaVM -l${nlopt.library}</linkerStartOption>
+            <linkerStartOption>-dynamiclib -framework JavaVM ${nlopt.library}</linkerStartOption>
           </linkerStartOptions>
         </configuration>
       </plugin>
@@ -75,8 +75,8 @@
             If you have single dll, then set
             working directory to where the dll is placed will work
           -->
-          <!--workingDirectory>${project.build.directory}</workingDirectory-->
-          <argLine>-Djava.library.path="${project.build.directory};${java.library.path}"</argLine>
+          <!-- workingDirectory>${project.build.directory}</workingDirectory-->
+          <argLine>-Djava.library.path="${project.build.directory}:${java.library.path}"</argLine>
           <!-- currently not working
           <systemProperties>
             <property>

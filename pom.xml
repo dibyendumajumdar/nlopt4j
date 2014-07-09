@@ -77,14 +77,13 @@
     <profile>
       <id>macosx</id>
       <activation>
-        <property>
-          <name>platform</name>
-          <value>macosx</value>
-        </property>
+        <os>
+          <family>mac</family>
+        </os>
       </activation>
 	  <properties>
         <nlopt.include>~/nlopt/include</nlopt.include>
-        <nlopt.library>~/nlopt/lib</nlopt.library>
+        <nlopt.library>~/nlopt/lib/libnlopt.dylib</nlopt.library>
       </properties>
       <modules>
         <module>maven-macosx</module>
