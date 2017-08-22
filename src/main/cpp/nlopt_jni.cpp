@@ -64,8 +64,8 @@ extern "C" {
         }
 
         if (data->func) {
-            jdoubleArray xarray;
-            jdoubleArray gradientarray;
+            jdoubleArray xarray = NULL;
+            jdoubleArray gradientarray = NULL;
 
             // Create Java arrays
             xarray = jni->NewDoubleArray(n);
@@ -76,6 +76,8 @@ extern "C" {
             unsigned gsize = gradient ? n : 0;
             gradientarray = jni->NewDoubleArray(gsize);
             if (!gradientarray || jni->ExceptionCheck()) {
+                // avoid holding on to memory - see issue #1
+                jni->DeleteLocalRef(xarray);
                 nlopt_force_stop(data->handle);
                 return 0.0; // ignored
             }
@@ -87,6 +89,9 @@ extern "C" {
             // Call Java function
             jdouble result = jni->CallDoubleMethod(data->func, nlopt_func_execute_method, xarray, gradientarray);
             if (jni->ExceptionCheck()) {
+                // avoid holding on to memory - see issue #1
+                jni->DeleteLocalRef(xarray);
+                jni->DeleteLocalRef(gradientarray);
                 nlopt_force_stop(data->handle);
                 return 0.0; // ignored
             }
@@ -95,6 +100,9 @@ extern "C" {
                 jboolean is_copy = false;
                 double *xcopy = jni->GetDoubleArrayElements(gradientarray, &is_copy);
                 if (!xcopy || jni->ExceptionCheck()) {
+                    // avoid holding on to memory - see issue #1
+                    jni->DeleteLocalRef(xarray);
+                    jni->DeleteLocalRef(gradientarray);
                     nlopt_force_stop(data->handle);
                     return 0.0; // ignored
                 }
@@ -103,6 +111,9 @@ extern "C" {
                 // Release the managed copy
                 jni->ReleaseDoubleArrayElements(gradientarray, xcopy, 0);
             }
+            // avoid holding on to memory - see issue #1
+            jni->DeleteLocalRef(xarray);
+            jni->DeleteLocalRef(gradientarray);
             return result;
         }
         jni->ThrowNew(illegal_argument_exception_class, "No function set");
